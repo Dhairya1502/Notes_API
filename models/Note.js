@@ -4,19 +4,27 @@ const noteSchema = new mongoose.Schema(
   {
     title: {
       type: String,
-      required: true
+      required: true,
     },
+
     content: {
       type: String,
-      required: true
+      required: true,
     },
-    user: {
+
+    category: {
+      type: String,
+      default: "Personal",
+    },
+
+    userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User"
-    }
+      ref: "User",
+      required: true,
+    },
   },
   {
-    timestamps: true
+    timestamps: true,
   }
 );
 
