@@ -2,17 +2,19 @@ require("dotenv").config();
 
 const express = require("express");
 const mongoose = require("mongoose");
-const cors = require("cors"); // ✅ ADD THIS
+const cors = require("cors");
 
 const noteRoutes = require("./routes/noteRoutes");
+const authRoutes = require("./routes/authRoutes");
 
 const app = express();
 
-// ✅ CORS FIX (IMPORTANT - must be before routes)
+// CORS
 app.use(cors({
     origin: "*"
 }));
 
+// Middleware
 app.use(express.json());
 
 // MongoDB Connection
@@ -36,6 +38,9 @@ app.get("/about", (req, res) => {
 
 // Notes Routes
 app.use("/notes", noteRoutes);
+
+// Auth Routes
+app.use("/auth", authRoutes);
 
 // Start Server
 app.listen(3000, () => {

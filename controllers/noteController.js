@@ -1,9 +1,9 @@
 const Note = require("../models/Note");
 
-// GET all notes
+// GET all notes (ONLY logged-in user's notes)
 const getNotes = async (req, res) => {
     try {
-        const notes = await Note.find();
+        const notes = await Note.find({ userId: req.user.userId });
         res.json(notes);
     } catch (error) {
         res.status(500).json({
@@ -12,20 +12,26 @@ const getNotes = async (req, res) => {
     }
 };
 
-// CREATE note
+// CREATE note (attach userId)
 const createNote = async (req, res) => {
     try {
+        const { title, content } = req.body;
+
+        if (!title || !content) {
+            return res.status(400).json({
+                message: "Title and content are required"
+            });
+        }
+
         const note = new Note({
-            title: req.body.title,
-            content: req.body.content
+            title,
+            content,
+            userId: req.user.userId   // 🔥 IMPORTANT
         });
 
         await note.save();
 
-        res.json({
-            message: "Note saved to MongoDB",
-            note
-        });
+        res.status(201).json(note);
     } catch (error) {
         res.status(500).json({
             message: error.message
@@ -33,11 +39,11 @@ const createNote = async (req, res) => {
     }
 };
 
-// UPDATE note
+// UPDATE note (only own note)
 const updateNote = async (req, res) => {
     try {
-        const updatedNote = await Note.findByIdAndUpdate(
-            req.params.id,
+        const updatedNote = await Note.findOneAndUpdate(
+            { _id: req.params.id, userId: req.user.userId },
             {
                 title: req.body.title,
                 content: req.body.content
@@ -47,14 +53,11 @@ const updateNote = async (req, res) => {
 
         if (!updatedNote) {
             return res.status(404).json({
-                message: "Note not found"
+                message: "Note not found or not authorized"
             });
         }
 
-        res.json({
-            message: "Note updated successfully",
-            note: updatedNote
-        });
+        res.json(updatedNote);
     } catch (error) {
         res.status(500).json({
             message: error.message
@@ -62,14 +65,17 @@ const updateNote = async (req, res) => {
     }
 };
 
-// DELETE note
+// DELETE note (only own note)
 const deleteNote = async (req, res) => {
     try {
-        const deletedNote = await Note.findByIdAndDelete(req.params.id);
+        const deletedNote = await Note.findOneAndDelete({
+            _id: req.params.id,
+            userId: req.user.userId
+        });
 
         if (!deletedNote) {
             return res.status(404).json({
-                message: "Note not found"
+                message: "Note not found or not authorized"
             });
         }
 
