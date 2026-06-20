@@ -15,7 +15,7 @@ const getNotes = async (req, res) => {
 // CREATE note (attach userId)
 const createNote = async (req, res) => {
     try {
-        const { title, content } = req.body;
+        const { title, content, category } = req.body;
 
         if (!title || !content) {
             return res.status(400).json({
@@ -24,10 +24,11 @@ const createNote = async (req, res) => {
         }
 
         const note = new Note({
-            title,
-            content,
-            userId: req.user.userId   // 🔥 IMPORTANT
-        });
+    title,
+    content,
+    category,
+    userId: req.user.userId
+});
 
         await note.save();
 
