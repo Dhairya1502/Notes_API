@@ -2,10 +2,16 @@ require("dotenv").config();
 
 const express = require("express");
 const mongoose = require("mongoose");
+const cors = require("cors"); // ✅ ADD THIS
 
 const noteRoutes = require("./routes/noteRoutes");
 
 const app = express();
+
+// ✅ CORS FIX (IMPORTANT - must be before routes)
+app.use(cors({
+    origin: "*"
+}));
 
 app.use(express.json());
 
